@@ -170,6 +170,14 @@
 .transcriptionSection {
   display: flex;
   flex-direction: column;
+  gap: 15px;
+}
+
+.stackedPanels {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 15px;
+  height: 100%;
 }
 
 .placeholderPanel {

@@ -10,6 +10,8 @@ import { WaveformVisualizer } from './WaveformVisualizer';
 import { RecordingControls } from './RecordingControls';
 import { TranscriptionPanel } from './TranscriptionPanel';
 import { PhonemeProgress } from './PhonemeProgress';
+import { AcousticAnalysisPanel } from './AcousticAnalysisPanel';
+import { AcousticAnalyzer } from './acousticAnalyzer';
 
 // English consonant phonemes to train on
 const PHONEME_INVENTORY = [
@@ -73,14 +75,22 @@ export function PhoneticsStudio({ user, onLogout }) {
   const [trainingDataCount, setTrainingDataCount] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
 
+  // Acoustic analysis
+  const [acousticAnalyzer, setAcousticAnalyzer] = useState(null);
+  const [acousticFeatures, setAcousticFeatures] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   const currentPhoneme = PHONEME_INVENTORY[currentPhonemeIndex];
 
-  // Initialize audio context
+  // Initialize audio context and analyzer
   useEffect(() => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     }
-  }, []);
+    if (!acousticAnalyzer) {
+      setAcousticAnalyzer(new AcousticAnalyzer(audioContextRef.current));
+    }
+  }, [acousticAnalyzer]);
 
   // Handle recording start
   const handleStartRecording = async () => {
@@ -101,7 +111,23 @@ export function PhoneticsStudio({ user, onLogout }) {
 
         setAudioBuffer(audioData);
         extractWaveformData(audioData);
-        generateSystemGuess(audioData);
+
+        // Analyze acoustic features
+        if (acousticAnalyzer) {
+          setIsAnalyzing(true);
+          try {
+            const features = acousticAnalyzer.analyzeAudio(audioData);
+            setAcousticFeatures(features);
+            generateSystemGuess(features);
+          } catch (err) {
+            console.error('Acoustic analysis failed:', err);
+            generateSystemGuess(null);
+          } finally {
+            setIsAnalyzing(false);
+          }
+        } else {
+          generateSystemGuess(null);
+        }
 
         stream.getTracks().forEach(track => track.stop());
       };
@@ -141,19 +167,106 @@ export function PhoneticsStudio({ user, onLogout }) {
     setWaveformData(waveform);
   };
 
-  // Simulate system's phoneme guess (placeholder)
-  const generateSystemGuess = (audioData) => {
-    // TODO: Replace with actual ML inference
-    // For now, just guess the current phoneme target
-    const confidence = 0.6 + Math.random() * 0.3; // 60-90% confidence
+  // Simulate system's phoneme guess using acoustic features
+  const generateSystemGuess = (features) => {
+    if (!features) {
+      // Fallback if analysis failed
+      const confidence = 0.6 + Math.random() * 0.3;
+      setSystemGuess({
+        phoneme: currentPhoneme.symbol,
+        confidence: confidence.toFixed(2),
+        alternativeGuesses: [
+          { phoneme: 'p', confidence: (0.1 + Math.random() * 0.2).toFixed(2) },
+          { phoneme: 'b', confidence: (0.05 + Math.random() * 0.15).toFixed(2) },
+        ]
+      });
+      return;
+    }
+
+    // TODO: Replace with actual ML model inference
+    // For now, use acoustic features to make an educated guess
+    const guess = getPhonemeGuessFromFeatures(features);
+
     setSystemGuess({
-      phoneme: currentPhoneme.symbol,
-      confidence: confidence.toFixed(2),
-      alternativeGuesses: [
-        { phoneme: 'p', confidence: (0.1 + Math.random() * 0.2).toFixed(2) },
-        { phoneme: 'b', confidence: (0.05 + Math.random() * 0.15).toFixed(2) },
-      ]
+      phoneme: guess.phoneme,
+      confidence: guess.confidence.toFixed(2),
+      alternativeGuesses: guess.alternatives,
+      acousticHints: features.summary.phonemeHints
     });
+  };
+
+  // Simple heuristic-based phoneme guessing from acoustic features
+  const getPhonemeGuessFromFeatures = (features) => {
+    const { voicing, zeroCrossingRate, pitch, formants } = features;
+
+    // Heuristics for phoneme classification
+    if (!voicing.isVoiced && zeroCrossingRate.isFricative) {
+      // Unvoiced fricative: f, s, sh, th
+      const fricatives = [
+        { phoneme: 'f', confidence: 0.3 },
+        { phoneme: 's', confidence: 0.25 },
+        { phoneme: 'θ', confidence: 0.2 },
+        { phoneme: 'ʃ', confidence: 0.25 }
+      ];
+      return {
+        phoneme: fricatives[0].phoneme,
+        confidence: 0.7 + Math.random() * 0.2,
+        alternatives: fricatives.slice(1)
+      };
+    } else if (voicing.isVoiced && zeroCrossingRate.isFricative) {
+      // Voiced fricative: v, z, zh
+      return {
+        phoneme: 'v',
+        confidence: 0.65 + Math.random() * 0.2,
+        alternatives: [
+          { phoneme: 'z', confidence: 0.15 },
+          { phoneme: 'ð', confidence: 0.1 }
+        ]
+      };
+    } else if (!voicing.isVoiced && !zeroCrossingRate.isFricative) {
+      // Unvoiced stop: p, t, k
+      return {
+        phoneme: 'p',
+        confidence: 0.6 + Math.random() * 0.2,
+        alternatives: [
+          { phoneme: 't', confidence: 0.15 },
+          { phoneme: 'k', confidence: 0.1 }
+        ]
+      };
+    } else if (voicing.isVoiced && pitch.mean > 80) {
+      // Voiced: vowel, nasal, or voiced stop
+      if (formants.f1.frequency > 300) {
+        // Likely vowel (has clear formants)
+        return {
+          phoneme: 'a',
+          confidence: 0.55 + Math.random() * 0.2,
+          alternatives: [
+            { phoneme: 'e', confidence: 0.15 },
+            { phoneme: 'i', confidence: 0.1 }
+          ]
+        };
+      } else {
+        // Likely nasal or voiced stop
+        return {
+          phoneme: 'm',
+          confidence: 0.5 + Math.random() * 0.2,
+          alternatives: [
+            { phoneme: 'n', confidence: 0.2 },
+            { phoneme: 'b', confidence: 0.1 }
+          ]
+        };
+      }
+    } else {
+      // Default guess
+      return {
+        phoneme: currentPhoneme.symbol,
+        confidence: 0.5 + Math.random() * 0.2,
+        alternatives: [
+          { phoneme: 'p', confidence: 0.15 },
+          { phoneme: 'a', confidence: 0.1 }
+        ]
+      };
+    }
   };
 
   // Handle user confirmation/correction
@@ -280,22 +393,32 @@ export function PhoneticsStudio({ user, onLogout }) {
           />
         </div>
 
-        {/* Right: Transcription & Correction */}
+        {/* Right: Transcription & Analysis */}
         <div className={styles.transcriptionSection}>
-          {systemGuess ? (
-            <TranscriptionPanel
-              systemGuess={systemGuess}
-              targetPhoneme={currentPhoneme.symbol}
-              userCorrection={userCorrection}
-              onCorrectionChange={setUserCorrection}
-              onConfirm={handleConfirmCorrection}
-              correctionConfirmed={correctionConfirmed}
-            />
+          {isAnalyzing ? (
+            <div className={styles.placeholderPanel}>
+              <div className={styles.placeholderContent}>
+                <span className={styles.placeholderIcon}>🔍</span>
+                <p>Analyzing acoustic features...</p>
+              </div>
+            </div>
+          ) : systemGuess ? (
+            <div className={styles.stackedPanels}>
+              <TranscriptionPanel
+                systemGuess={systemGuess}
+                targetPhoneme={currentPhoneme.symbol}
+                userCorrection={userCorrection}
+                onCorrectionChange={setUserCorrection}
+                onConfirm={handleConfirmCorrection}
+                correctionConfirmed={correctionConfirmed}
+              />
+              <AcousticAnalysisPanel features={acousticFeatures} />
+            </div>
           ) : (
             <div className={styles.placeholderPanel}>
               <div className={styles.placeholderContent}>
                 <span className={styles.placeholderIcon}>🎙️</span>
-                <p>Record a sample to see system's phoneme guess</p>
+                <p>Record a sample to see system's phoneme guess & acoustic analysis</p>
               </div>
             </div>
           )}
