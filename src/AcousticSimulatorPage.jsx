@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './AcousticSimulatorPage.module.css';
-import { AcousticSimulator, AudioBuffer } from '../components/acoustics/acousticCore';
+import { AcousticSimulator, AudioBuffer } from './acousticCore';
 
 export function AcousticSimulatorPage() {
   const canvasRef = useRef(null);
