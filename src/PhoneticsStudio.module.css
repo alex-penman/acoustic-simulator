@@ -1,0 +1,323 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-bottom: 2px solid #334155;
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerContent h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.headerContent p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.userName {
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.logoutBtn {
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Phase Bar */
+.phaseBar {
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 1px solid #334155;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.phaseIndicator {
+  flex: 1;
+}
+
+.phaseLabel {
+  display: block;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+}
+
+.phaseDesc {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.stats {
+  display: flex;
+  gap: 30px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statLabel {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.statValue {
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Studio Content */
+.studioContent {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.recordingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.phonemeCard {
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+}
+
+.phonemeTarget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.phonemeSymbol {
+  font-size: 72px;
+  font-weight: 700;
+  color: #60a5fa;
+  line-height: 1;
+}
+
+.phonemeInfo h3 {
+  margin: 0 0 8px 0;
+  color: #f1f5f9;
+  font-size: 16px;
+}
+
+.examples {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.examples strong {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.transcriptionSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.placeholderPanel {
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px dashed #334155;
+  border-radius: 12px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.placeholderContent {
+  text-align: center;
+}
+
+.placeholderIcon {
+  display: block;
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.placeholderPanel p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* History Section */
+.historySection {
+  padding: 30px;
+  background: rgba(30, 41, 59, 0.5);
+  border-top: 1px solid #334155;
+  margin-top: auto;
+}
+
+.historySection h3 {
+  margin: 0 0 20px 0;
+  color: #f1f5f9;
+  font-size: 16px;
+}
+
+.recordingsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.recordingItem {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recordingItem.correct {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.recordingItem.incorrect {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.recordingNumber {
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.systemGuess,
+.userGuess {
+  color: #94a3b8;
+}
+
+.systemGuess::before {
+  content: '🤖 ';
+}
+
+.userGuess::before {
+  content: '👂 ';
+}
+
+.result {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.recordingItem.correct .result {
+  color: #10b981;
+}
+
+.recordingItem.incorrect .result {
+  color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .studioContent {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .phaseBar {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 768px) {
+  .studioContent {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .header {
+    padding: 20px 15px;
+  }
+
+  .userSection {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .phonemeSymbol {
+    font-size: 48px;
+  }
+
+  .historySection {
+    padding: 15px;
+  }
+
+  .recordingsList {
+    grid-template-columns: 1fr;
+  }
+}

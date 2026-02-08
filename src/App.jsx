@@ -1,9 +1,19 @@
-import { TruePhonetics } from './TruePhonetics'
+import { PhoneticsStudio } from './PhoneticsStudio'
 import './App.css'
 
 function App() {
+  // Demo mode - no authentication needed
+  const user = {
+    name: 'Phonetician',
+    firstName: 'Alex'
+  }
+
+  const handleLogout = () => {
+    window.location.reload()
+  }
+
   return (
-    <TruePhonetics />
+    <PhoneticsStudio user={user} onLogout={handleLogout} />
   )
 }
 
