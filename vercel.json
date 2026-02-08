@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "public": false,
+  "env": {
+    "VITE_APP_URL": "@app_url"
+  }
+}
