@@ -1,9 +1,9 @@
-import AcousticSimulatorPage from './AcousticSimulatorPage'
+import { TruePhonetics } from './TruePhonetics'
 import './App.css'
 
 function App() {
   return (
-    <AcousticSimulatorPage />
+    <TruePhonetics />
   )
 }
 
